@@ -4,6 +4,13 @@ Overview
 The Personal Budget Tracker is a Python application that allows users to record, view, edit, and delete financial transactions. It helps users manage their spending by organizing transactions into categories, calculating totals, and generating summaries.  
 The project is designed for clarity, modularity, and easy expansion.
 
+FILES NEEDED TO INSTALL BEFORE USE
+budget.py
+income.py
+main.py
+reports.py
+transaction.py
+
 Features
 - Add new income or expense transactions  
 - Edit or delete existing transactions  
@@ -13,26 +20,11 @@ Features
 - Data saved to a file so information persists  
 - Fully menu-driven program launched from `main.py`
 
-Project Structure
-/src
-main.py
-budget_manager.py
-transaction.py
-/data
-transactions.csv
-/tests
-test_budget_manager.py
-README.md
-DESIGN.md
-
 How to Run
-1. Clone the repository:
-   ```sh
-   git clone <your repo URL>
-   cd personal-budget-tracker
+
 Run the program:
 
-  python src/main.py
+  python main.py
   Usage Example
 
 When the program starts, you will see a menu like:
