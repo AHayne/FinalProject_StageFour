@@ -1,218 +1,219 @@
-System Design Documentation — Personal Budget Tracker
+Personal Budget Tracker — System Design Documentation
 1. Overview
 
-The Personal Budget Tracker is a menu-driven Python application that allows users to manage financial transactions. The program uses object-oriented design with a modular file structure to keep code readable, maintainable, and easy to expand.
+The Personal Budget Tracker is a Python application that helps users manage income and expenses. It uses a modular, object-oriented structure with persistent CSV storage.
+This document explains the program architecture, classes, data flow, and major design decisions.
 
-This document explains the architecture, classes, data flow, and design decisions behind the final project.
-
-2. Architecture Overview
-2.1 Program Structure
 /src
-    main.py
-    budget_manager.py
-    transaction.py
+│── main.py
+│── budget_manager.py
+│── transaction.py
 /data
-    transactions.csv
+│── transactions.csv
 /tests
-    test_budget_manager.py
+│── test_budget_manager.py
 README.md
 DESIGN.md
 
-main.py
+| File                     | Responsibility                                                     |
+| ------------------------ | ------------------------------------------------------------------ |
+| `main.py`                | Entry point, menu UI, user input handling                          |
+| `transaction.py`         | Defines `Transaction` class (stores data for each entry)           |
+| `budget_manager.py`      | Core logic: add/delete transactions, summaries, CSV loading/saving |
+| `transactions.csv`       | Stores persistent financial data                                   |
+| `test_budget_manager.py` | Unit tests for functionality                                       |
 
-Entry point of the application
+Transaction Class
 
-Displays menu
+Represents a single income or expense entry
 
-Handles user input and calls methods from BudgetManager
+Stores ID, date, category, and amount
 
-transaction.py
+Converts data to/from CSV
 
-Defines the Transaction class
+Provides formatted output
 
-Stores: ID, date, category, amount
+BudgetManager Class
 
-Provides string representation for clean printing
+Manages a list of Transaction objects
 
-budget_manager.py
+Handles:
 
-Core logic of the program
+Adding transactions
 
-Loads and saves transactions
+Deleting by ID
 
-Adds, deletes, and retrieves data
+Loading from CSV at startup
 
-Calculates summaries
+Saving to CSV automatically
 
-transactions.csv
+Generating income/expense summaries
 
-Persistent data storage
+Data Flow
+Input → Processing → Output
 
-Each row = one transaction
-
-tests/test_budget_manager.py
-
-Unit tests for adding, deleting, and summarizing data
-
-3. Class Design
-3.1 Class Diagram
-+-------------------+        1..*       +--------------------+
-|   BudgetManager   |------------------>|    Transaction     |
-+-------------------+                   +--------------------+
-| - transactions    |                   | - id               |
-|                   |                   | - date             |
-| + add_transaction()                   | - category         |
-| + delete_transaction()                | - amount           |
-| + get_all_transactions()              |                    |
-| + load_from_csv()                     | + to_dict()        |
-| + save_to_csv()                       | + __str__()        |
-| + get_summary()                       |                    |
-+-------------------+                   +--------------------+
-
-Transaction
-
-Represents a single financial entry
-
-Holds basic data
-
-Converts itself to/from CSV
-
-BudgetManager
-
-Manages an internal list of Transaction objects
-
-Handles all file operations
-
-Performs calculations for summary
-
-Ensures data integrity
-
-4. Data Flow
-4.1 Input → Processing → Output
 Input
 
-User selects menu options (1–5)
+User selects menu options such as:
 
-User enters:
+Add transaction
 
-Date (YYYY-MM-DD)
+View all transactions
 
-Category (e.g., Food, Rent)
+Delete by ID
 
-Amount (positive = income, negative = expense)
+View summary
 
 Processing
 
-System validates values
+Validate user input
 
-Creates a Transaction object
+Convert values into a Transaction object
 
-Appends it to the transaction list
+Append/update list in BudgetManager
 
-Writes updated data to transactions.csv
+Rewrite transactions.csv
 
 Output
 
-Printed transaction list
+Printed tables of transactions
 
-Confirmation messages
+Formatted summary (income, expenses, balance)
 
-Summary report:
+User confirmations
 
-Total income
+Start
+  ↓
+Load transactions.csv
+  ↓
+Display Menu ──────────────────────────────┐
+  ↓                                        │
+User Choice                                 │
+  ↓                                        │
+┌───────────────┬───────────────┬──────────┴───────────┐
+Add Transaction  View Transactions  Delete Transaction  Summary
+  ↓                 ↓                  ↓                  ↓
+Update Manager   Display List       Remove by ID       Calc Totals
+  ↓                 ↓                  ↓                  ↓
+Save to CSV      Return to Menu     Save to CSV     Return to Menu
+  ↓                 ↓                  ↓                  ↓
+                    Loop Back to Main Menu
 
-Total expenses
+Data Storage
+CSV Format
 
-Balance
+Stored as plain text for readability and easy editing:
 
-5. Data Storage Format
-CSV Columns:
 id,date,category,amount
-3,2025-02-11,Rent,-950.00
+1,2025-02-11,Rent,-950.00
+2,2025-02-12,Groceries,-45.23
+3,2025-02-13,Paycheck,1200.00
 
+Why CSV?
 
-CSV is used because:
+Simple for students
 
-Simple
+Easy to parse with Python
 
-Human-readable
+Opens in Excel/Google Sheets
 
-Works well with tabular transaction data
+Perfect for tabular transaction data
 
-6. Key Design Decisions
-1. Separate Classes for Clean Architecture
+Design Decisions
+1. Modular OOP Structure
 
-Current structure follows:
+Separates:
 
-Transaction = data holder
+Data model (Transaction)
 
-BudgetManager = logic and storage
+Logic (BudgetManager)
 
-main.py = user interface
+Interface (main.py)
 
-This separation prevents functions from being mixed together.
+Cleaner, easier to test, easier to expand.
 
-2. CSV for Persistence
+2. Transaction IDs
 
-I chose CSV instead of JSON because:
+Instead of list indexes, numeric IDs:
 
-A budget is naturally tabular
+Stable
 
-CSV is easy to open in Excel
+Easy to reference
 
-Simple to append and rewrite
+Makes deletion safer
 
-3. Unique Transaction IDs
+Automatic Saving
 
-Each transaction is given a numeric ID.
-This allows:
+After any operation:
 
-Easy deletion
+CSV is rewritten
 
-Clear referencing
+No lost data
 
-No ambiguity
+No need for manual save button
 
-4. Designed for Expandability
+Expandability in Mind
 
-Future additions could include:
+The project is intentionally modular so future features can be added easily:
+
+Future possible improvements:
+
+Budget categories
 
 Monthly reports
 
-Graphs (matplotlib)
-
-Categories list
-
-User accounts
+ASCII charts or graphs
 
 Export to Excel
 
-The modular structure makes adding features straightforward.
+GUI version using Tkinter or PyQt
 
-7. Reflection
+Testing Strategy
+Unit Tests (test_budget_manager.py)
 
-Through this project, I learned:
+Covers:
 
-How to design a multi-file Python project
+Adding a transaction
 
-How object-oriented design simplifies large programs
+Deleting by ID
 
-How to manage persistent data with CSV
+Summary totals
 
-How to connect classes using clean interfaces
+CSV loading and saving
 
-How to document a software project professionally
+Testing ensures:
 
-If I had more time, I would add:
+No regression errors
 
-Category filtering
+File operations behave consistently
 
-A GUI version
+Logic remains correct after changes
 
-A login system with multiple users
+Reflection
+
+Through designing and building this project, I learned:
+
+How to build a multi-file Python application
+
+How OOP reduces complexity in larger programs
+
+How to persist data using CSV files
+
+How to document software professionally
+
+How to write and run unit tests
+
+If I continued development, I would add:
+
+Filtering by category
+
+Editable transactions
+
+A budgeting goal system
+
+Visualization charts
 
 Author
-
 Ava Hayner
 Southern Utah University
 CS 1410 — Final Project (2025)
